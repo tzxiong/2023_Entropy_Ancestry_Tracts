@@ -1,0 +1,51 @@
+// Keywords: 
+
+initialize() {
+
+
+
+	// working directory
+	if (!exists("dir")) {defineConstant("dir", "/n/holyscratch01/mallet_lab/txiong/Research/2022_EntropyAncestry/simulation.slim/neutralWF");}
+	// source directory (for loading .tree files, usually for burn-in)
+	if (!exists("dir_source")) {defineConstant("dir_source", "/n/holyscratch01/mallet_lab/txiong/Research/2022_EntropyAncestry/simulation.slim/neutralWF");}
+	// .tree file name
+	if (!exists("treeSeqFileName")) {defineConstant("treeSeqFileName", "slim_seed4358787672556_gen999500.trees");}
+
+
+	// seed used to run the model
+	defineConstant("simID",getSeed());
+	// number of generations between two output events
+	defineConstant("outputCycle",1);
+	
+	//	initializeTreeSeq();
+	initializeTreeSeq();
+
+
+	
+	initializeMutationRate(0);
+	initializeMutationType("m1", 0.5, "f", 0.0);
+	initializeGenomicElementType("g1", m1, 1.0);
+	initializeGenomicElement(g1, 0, asInteger(1e7-1));
+	initializeRecombinationRate(1e-7);
+}
+
+
+1 early() { 
+
+	sim.addSubpop("p1", 2000); 
+	
+	//	sim.readFromPopulationFile(dir_source + "/" + treeSeqFileName); //use a pre-eixsting population profile
+	
+	sim.treeSeqRememberIndividuals(sim.subpopulations.individuals);
+
+}
+
+1:2000 late() {
+
+	if (sim.cycle/outputCycle == ceil(sim.cycle/outputCycle)) {
+		print("Current generation: "+asString(sim.cycle));
+		sim.treeSeqSimplify();
+		sim.treeSeqOutput(dir + "/slim_seed" + simID + "_gen" + sim.cycle + ".trees");
+	}
+
+}
